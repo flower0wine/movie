@@ -1,0 +1,222 @@
+[
+  {
+    "id": 1,
+    "title": "肖申克的救赎",
+    "originalTitle": "The Shawshank Redemption",
+    "year": 1994,
+    "director": "弗兰克·德拉邦特",
+    "genre": ["剧情", "犯罪"],
+    "rating": 9.7,
+    "duration": "142分钟",
+    "description": "一个银行家被冤枉入狱，在肖申克监狱中用智慧和毅力寻找自由的故事。"
+  },
+  {
+    "id": 2,
+    "title": "霸王别姬",
+    "originalTitle": "Farewell My Concubine",
+    "year": 1993,
+    "director": "陈凯歌",
+    "genre": ["剧情", "爱情", "同性"],
+    "rating": 9.6,
+    "duration": "171分钟",
+    "description": "两个京剧演员半个世纪的悲欢离合，折射出中国近代史的沧桑巨变。"
+  },
+  {
+    "id": 3,
+    "title": "阿甘正传",
+    "originalTitle": "Forrest Gump",
+    "year": 1994,
+    "director": "罗伯特·泽米吉斯",
+    "genre": ["剧情", "爱情"],
+    "rating": 9.5,
+    "duration": "142分钟",
+    "description": "一个智商只有75的男人，用纯真和善良创造了不可思议的人生奇迹。"
+  },
+  {
+    "id": 4,
+    "title": "泰坦尼克号",
+    "originalTitle": "Titanic",
+    "year": 1997,
+    "director": "詹姆斯·卡梅隆",
+    "genre": ["剧情", "爱情", "灾难"],
+    "rating": 9.4,
+    "duration": "194分钟",
+    "description": "一段跨越阶级的爱情故事，在泰坦尼克号的沉没中成为永恒。"
+  },
+  {
+    "id": 5,
+    "title": "千与千寻",
+    "originalTitle": "Spirited Away",
+    "year": 2001,
+    "director": "宫崎骏",
+    "genre": ["动画", "奇幻", "冒险"],
+    "rating": 9.4,
+    "duration": "125分钟",
+    "description": "少女千寻在神灵的世界中经历成长，寻找回家之路的奇幻旅程。"
+  },
+  {
+    "id": 6,
+    "title": "这个杀手不太冷",
+    "originalTitle": "Léon: The Professional",
+    "year": 1994,
+    "director": "吕克·贝松",
+    "genre": ["剧情", "动作", "犯罪"],
+    "rating": 9.4,
+    "duration": "110分钟",
+    "description": "一个职业杀手与一个小女孩之间不寻常的情感纽带。"
+  },
+  {
+    "id": 7,
+    "title": "星际穿越",
+    "originalTitle": "Interstellar",
+    "year": 2014,
+    "director": "克里斯托弗·诺兰",
+    "genre": ["科幻", "剧情", "冒险"],
+    "rating": 9.4,
+    "duration": "169分钟",
+    "description": "一群探险者穿越虫洞，为人类寻找新家园的史诗级太空之旅。"
+  },
+  {
+    "id": 8,
+    "title": "盗梦空间",
+    "originalTitle": "Inception",
+    "year": 2010,
+    "director": "克里斯托弗·诺兰",
+    "genre": ["科幻", "动作", "悬疑"],
+    "rating": 9.3,
+    "duration": "148分钟",
+    "description": "一个专门在梦境中窃取秘密的专家，接受了一项不可能完成的任务。"
+  },
+  {
+    "id": 9,
+    "title": "楚门的世界",
+    "originalTitle": "The Truman Show",
+    "year": 1998,
+    "director": "彼得·威尔",
+    "genre": ["剧情", "科幻"],
+    "rating": 9.3,
+    "duration": "103分钟",
+    "description": "一个男人发现自己的整个生活都是一场真人秀节目。"
+  },
+  {
+    "id": 10,
+    "title": "忠犬八公的故事",
+    "originalTitle": "Hachi: A Dog's Tale",
+    "year": 2009,
+    "director": "拉斯·霍尔斯道姆",
+    "genre": ["剧情", "家庭"],
+    "rating": 9.4,
+    "duration": "93分钟",
+    "description": "一只忠诚的秋田犬每天在车站等待已故主人归来的真实故事。"
+  },
+  {
+    "id": 11,
+    "title": "疯狂动物城",
+    "originalTitle": "Zootopia",
+    "year": 2016,
+    "director": "拜伦·霍华德",
+    "genre": ["动画", "冒险", "喜剧"],
+    "rating": 9.2,
+    "duration": "108分钟",
+    "description": "兔子朱迪和狐狸尼克联手揭开动物城背后阴谋的冒险故事。"
+  },
+  {
+    "id": 12,
+    "title": "放牛班的春天",
+    "originalTitle": "Les Choristes",
+    "year": 2004,
+    "director": "克里斯托夫·巴拉蒂",
+    "genre": ["剧情", "音乐"],
+    "rating": 9.3,
+    "duration": "97分钟",
+    "description": "一位音乐老师用合唱改变了问题少年们的人生轨迹。"
+  },
+  {
+    "id": 13,
+    "title": "机器人总动员",
+    "originalTitle": "WALL·E",
+    "year": 2008,
+    "director": "安德鲁·斯坦顿",
+    "genre": ["动画", "科幻", "冒险"],
+    "rating": 9.3,
+    "duration": "98分钟",
+    "description": "一个清扫机器人与一个探测机器人在太空中的浪漫爱情故事。"
+  },
+  {
+    "id": 14,
+    "title": "无间道",
+    "originalTitle": "Infernal Affairs",
+    "year": 2002,
+    "director": "刘伟强",
+    "genre": ["剧情", "犯罪", "悬疑"],
+    "rating": 9.3,
+    "duration": "101分钟",
+    "description": "警方和黑帮各自安插卧底，一场惊心动魄的身份博弈就此展开。"
+  },
+  {
+    "id": 15,
+    "title": "控方证人",
+    "originalTitle": "Witness for the Prosecution",
+    "year": 1957,
+    "director": "比利·怀尔德",
+    "genre": ["剧情", "犯罪", "悬疑"],
+    "rating": 9.6,
+    "duration": "116分钟",
+    "description": "一位病弱的律师接手一桩谋杀案，却在庭审中遭遇惊人反转。"
+  },
+  {
+    "id": 16,
+    "title": "大话西游之大圣娶亲",
+    "originalTitle": "A Chinese Odyssey Part Two: Cinderella",
+    "year": 1995,
+    "director": "刘镇伟",
+    "genre": ["喜剧", "爱情", "奇幻"],
+    "rating": 9.2,
+    "duration": "95分钟",
+    "description": "至尊宝为了救紫霞仙子，戴上金箍变成孙悟空的感人故事。"
+  },
+  {
+    "id": 17,
+    "title": "熔炉",
+    "originalTitle": "Silenced",
+    "year": 2011,
+    "director": "黄东赫",
+    "genre": ["剧情"],
+    "rating": 9.3,
+    "duration": "125分钟",
+    "description": "一位新来的老师发现学校对聋哑学生的暴行，勇敢揭露真相的故事。"
+  },
+  {
+    "id": 18,
+    "title": "教父",
+    "originalTitle": "The Godfather",
+    "year": 1972,
+    "director": "弗朗西斯·福特·科波拉",
+    "genre": ["剧情", "犯罪"],
+    "rating": 9.3,
+    "duration": "175分钟",
+    "description": "一个黑手党家族的权力交接，展现了权力、家族与忠诚的永恒主题。"
+  },
+  {
+    "id": 19,
+    "title": "寻梦环游记",
+    "originalTitle": "Coco",
+    "year": 2017,
+    "director": "李·昂克里奇",
+    "genre": ["动画", "奇幻", "音乐"],
+    "rating": 9.1,
+    "duration": "105分钟",
+    "description": "一个墨西哥男孩在亡灵节意外进入亡灵世界，追寻音乐梦想的故事。"
+  },
+  {
+    "id": 20,
+    "title": "海上钢琴师",
+    "originalTitle": "The Legend of 1900",
+    "year": 1998,
+    "director": "朱塞佩·托纳多雷",
+    "genre": ["剧情", "音乐"],
+    "rating": 9.3,
+    "duration": "165分钟",
+    "description": "一个在船上出生的天才钢琴师，用音乐诠释了他传奇的一生。"
+  }
+]
