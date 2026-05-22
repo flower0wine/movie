@@ -308,15 +308,11 @@ export default function MovieShowcase() {
   useEffect(() => {
     const controller = new AbortController();
     const trimmed = search.trim();
-
-    if (!trimmed) {
-      fetchMovies(controller.signal);
-      return () => controller.abort();
-    }
+    const delay = trimmed ? 300 : 0;
 
     const timer = window.setTimeout(() => {
       fetchMovies(controller.signal);
-    }, 300);
+    }, delay);
 
     return () => {
       controller.abort();

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { Movie } from "@/types/movie";
 
 interface HeroCarouselProps {
@@ -10,6 +10,17 @@ interface HeroCarouselProps {
 }
 
 const INTERVAL = 5000;
+const HERO_SIZE = {
+  minHeight: "clamp(420px, 58vh, 640px)",
+};
+const HERO_LAYOUT = {
+  display: "grid",
+  alignItems: "center",
+  minHeight: "inherit",
+};
+const POSTER_FRAME = {
+  aspectRatio: "2 / 3",
+};
 
 function ChevronLeft({ className }: { className?: string }) {
   return (
@@ -35,30 +46,14 @@ function StarIcon({ className }: { className?: string }) {
   );
 }
 
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? "100%" : "-100%",
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? "-100%" : "100%",
-    opacity: 0,
-  }),
-};
-
-const contentVariants = {
-  enter: { opacity: 0, y: 30 },
-  center: { opacity: 1, y: 0, transition: { delay: 0.2, duration: 0.5, ease: "easeOut" as const } },
-  exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
-};
-
 export default function HeroCarousel({ movies }: HeroCarouselProps) {
   const [[current, direction], setCurrent] = useState([0, 0]);
   const [isPaused, setIsPaused] = useState(false);
+  const [failedPosters, setFailedPosters] = useState<Set<number>>(
+    () => new Set()
+  );
+  const [isNarrow, setIsNarrow] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const paginate = useCallback(
     (newDirection: number) => {
@@ -72,127 +67,185 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
     [movies.length]
   );
 
-  const goTo = useCallback(
-    (index: number) => {
-      setCurrent(([prev]) => [index, index > prev ? 1 : -1]);
-    },
-    []
-  );
+  const goTo = useCallback((index: number) => {
+    setCurrent(([prev]) => [index, index >= prev ? 1 : -1]);
+  }, []);
 
   useEffect(() => {
     if (isPaused) return;
-    const timer = setInterval(() => paginate(1), INTERVAL);
-    return () => clearInterval(timer);
+    timerRef.current = setInterval(() => paginate(1), INTERVAL);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [isPaused, paginate]);
 
+  useEffect(() => {
+    const updateLayout = () => {
+      setIsNarrow(window.innerWidth < 768);
+    };
+
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+
+    return () => window.removeEventListener("resize", updateLayout);
+  }, []);
+
+  if (movies.length === 0) return null;
+
   const movie = movies[current];
+  const hasFailedPoster = failedPosters.has(movie.id);
 
   return (
     <div
-      className="relative w-full h-[65vh] min-h-[420px] max-h-[680px] overflow-hidden bg-dark-bg"
+      className="relative w-full overflow-hidden border-b border-dark-border bg-dark-bg"
+      style={HERO_SIZE}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <AnimatePresence initial={false} custom={direction} mode="popLayout">
         <motion.div
-          key={current}
+          key={movie.id}
           custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          initial={{ x: direction > 0 ? "100%" : "-100%", opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: direction > 0 ? "-100%" : "100%", opacity: 0 }}
+          transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
           className="absolute inset-0"
         >
-          <Image
-            src={movie.poster}
-            alt={movie.title}
-            fill
-            priority
-            className="object-cover brightness-[0.85]"
-            unoptimized
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/20 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,rgba(245,158,11,0.14),transparent_32%),linear-gradient(135deg,#0a0a0a_0%,#141414_52%,#0a0a0a_100%)]" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-6 sm:px-10 flex items-end pb-16">
-        <AnimatePresence mode="wait">
+      <div
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6"
+        style={{
+          ...HERO_LAYOUT,
+          gridTemplateColumns: isNarrow
+            ? "1fr"
+            : "minmax(220px, 340px) minmax(0, 1fr)",
+          gap: isNarrow ? "1.5rem" : "3rem",
+        }}
+      >
+        <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
-            key={current}
-            variants={contentVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="w-full max-w-2xl"
+            key={`${movie.id}-poster`}
+            custom={direction}
+            initial={{ x: direction > 0 ? 48 : -48, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction > 0 ? -48 : 48, opacity: 0 }}
+            transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+            className="relative mx-auto overflow-hidden rounded-lg border border-white/10 bg-dark-surface shadow-2xl shadow-black/50"
+            style={{
+              ...POSTER_FRAME,
+              width: isNarrow ? "min(62vw, 240px)" : "min(100%, 340px)",
+            }}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-glow/20 backdrop-blur-sm">
-                <StarIcon className="w-3.5 h-3.5 text-amber-glow" />
-                <span className="text-sm font-bold text-amber-glow">{movie.rating}</span>
-              </span>
-              <span className="text-sm text-white/60">{movie.year}</span>
-            </div>
-
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-              {movie.title}
-            </h2>
-
-            <div className="flex flex-wrap gap-2">
-              {movie.genre.map((g) => (
-                <span
-                  key={g}
-                  className="px-3 py-1 text-xs rounded-full bg-white/15 text-white/80 backdrop-blur-sm"
-                >
-                  {g}
+            {hasFailedPoster ? (
+              <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
+                <span className="text-2xl font-bold text-dark-text-secondary">
+                  {movie.title}
                 </span>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <Image
+                src={movie.poster}
+                alt={movie.title}
+                fill
+                priority={current === 0}
+                sizes="(max-width: 768px) 260px, 340px"
+                className="object-cover"
+                unoptimized
+                onError={() => {
+                  setFailedPosters((currentFailedPosters) => {
+                    const nextFailedPosters = new Set(currentFailedPosters);
+                    nextFailedPosters.add(movie.id);
+                    return nextFailedPosters;
+                  });
+                }}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <motion.div
+            key={`${movie.id}-content`}
+            custom={direction}
+            initial={{ x: direction > 0 ? 36 : -36, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction > 0 ? -36 : 36, opacity: 0 }}
+            transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
+            className="max-w-3xl text-center md:text-left"
+            style={{ textAlign: isNarrow ? "center" : "left" }}
+          >
+          <div className="mb-3 flex items-center gap-3">
+            <span className="flex items-center gap-1.5 rounded-full bg-amber-glow/20 px-2.5 py-0.5">
+              <StarIcon className="h-3.5 w-3.5 text-amber-glow" />
+              <span className="text-sm font-bold text-amber-glow">
+                {movie.rating}
+              </span>
+            </span>
+            <span className="text-sm text-white/60">{movie.year}</span>
+          </div>
+
+          <h2 className="mb-3 text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] sm:text-5xl md:text-6xl">
+            {movie.title}
+          </h2>
+
+          <p className="mb-5 text-sm text-white/55 sm:text-base">
+            {movie.originalTitle} · {movie.director} · {movie.duration}
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {movie.genre.map((genre) => (
+              <span
+                key={genre}
+                className="rounded-full bg-white/15 px-3 py-1 text-xs text-white/80"
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
+
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
+              {movie.description}
+            </p>
           </motion.div>
         </AnimatePresence>
       </div>
 
       <button
         onClick={() => paginate(-1)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all backdrop-blur-sm"
+        className="absolute left-4 z-20 rounded-full border border-white/10 bg-white/5 p-2 text-white/60 transition-all hover:bg-white/10 hover:text-white"
+        style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="上一部"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={() => paginate(1)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all backdrop-blur-sm"
+        className="absolute right-4 z-20 rounded-full border border-white/10 bg-white/5 p-2 text-white/60 transition-all hover:bg-white/10 hover:text-white"
+        style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="下一部"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+      <div
+        className="absolute z-20 flex items-center gap-2"
+        style={{ bottom: "1.5rem", left: "50%", transform: "translateX(-50%)" }}
+      >
         {movies.map((_, i) => (
           <button
             key={i}
             onClick={() => goTo(i)}
             aria-label={`跳转到第 ${i + 1} 部电影`}
             className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === current
-                ? "w-8 bg-white"
-                : "w-1.5 bg-white/30 hover:bg-white/50"
+              i === current ? "w-8 bg-white" : "w-1.5 bg-white/30 hover:bg-white/50"
             }`}
           />
         ))}
       </div>
-
-      {!isPaused && (
-        <div className="absolute bottom-0 left-0 h-[2px] bg-white/30 z-20">
-          <motion.div
-            className="h-full bg-white/80"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration: INTERVAL / 1000, ease: "linear" }}
-            key={current}
-          />
-        </div>
-      )}
     </div>
   );
 }
