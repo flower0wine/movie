@@ -1,0 +1,158 @@
+[
+  {
+    "id": 1,
+    "title": "肖申克的救赎",
+    "originalTitle": "The Shawshank Redemption",
+    "year": 1994,
+    "director": "弗兰克·德拉邦特",
+    "genre": [
+      "剧情",
+      "犯罪"
+    ],
+    "rating": 9.7,
+    "duration": "142分钟",
+    "description": "一个银行家被冤枉入狱，在肖申克监狱中用智慧和毅力寻找自由的故事。",
+    "poster": "https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg"
+  },
+  {
+    "id": 2,
+    "title": "霸王别姬",
+    "originalTitle": "Farewell My Concubine",
+    "year": 1993,
+    "director": "陈凯歌",
+    "genre": [
+      "剧情",
+      "爱情",
+      "同性"
+    ],
+    "rating": 9.6,
+    "duration": "171分钟",
+    "description": "两个京剧演员半个世纪的悲欢离合，折射出中国近代史的沧桑巨变。",
+    "poster": "https://image.tmdb.org/t/p/w500/pGzKJfQBQfytbJfNBjGEsBBEo0h.jpg"
+  },
+  {
+    "id": 3,
+    "title": "阿甘正传",
+    "originalTitle": "Forrest Gump",
+    "year": 1994,
+    "director": "罗伯特·泽米吉斯",
+    "genre": [
+      "剧情",
+      "爱情"
+    ],
+    "rating": 9.5,
+    "duration": "142分钟",
+    "description": "一个智商只有75的男人，用纯真和善良创造了不可思议的人生奇迹。",
+    "poster": "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"
+  },
+  {
+    "id": 4,
+    "title": "泰坦尼克号",
+    "originalTitle": "Titanic",
+    "year": 1997,
+    "director": "詹姆斯·卡梅隆",
+    "genre": [
+      "剧情",
+      "爱情",
+      "灾难"
+    ],
+    "rating": 9.4,
+    "duration": "194分钟",
+    "description": "一段跨越阶级的爱情故事，在泰坦尼克号的沉没中成为永恒。",
+    "poster": "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg"
+  },
+  {
+    "id": 5,
+    "title": "千与千寻",
+    "originalTitle": "Spirited Away",
+    "year": 2001,
+    "director": "宫崎骏",
+    "genre": [
+      "动画",
+      "奇幻",
+      "冒险"
+    ],
+    "rating": 9.4,
+    "duration": "125分钟",
+    "description": "少女千寻在神灵的世界中经历成长，寻找回家之路的奇幻旅程。",
+    "poster": "https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg"
+  },
+  {
+    "id": 6,
+    "title": "这个杀手不太冷",
+    "originalTitle": "Léon: The Professional",
+    "year": 1994,
+    "director": "吕克·贝松",
+    "genre": [
+      "剧情",
+      "动作",
+      "犯罪"
+    ],
+    "rating": 9.4,
+    "duration": "110分钟",
+    "description": "一个职业杀手与一个小女孩之间不寻常的情感纽带。",
+    "poster": "https://image.tmdb.org/t/p/w500/yI6iHhQ3v1oMNMfiywXGkYhLVPv.jpg"
+  },
+  {
+    "id": 7,
+    "title": "星际穿越",
+    "originalTitle": "Interstellar",
+    "year": 2014,
+    "director": "克里斯托弗·诺兰",
+    "genre": [
+      "科幻",
+      "剧情",
+      "冒险"
+    ],
+    "rating": 9.4,
+    "duration": "169分钟",
+    "description": "一群探险者穿越虫洞，为人类寻找新家园的史诗级太空之旅。",
+    "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
+  },
+  {
+    "id": 8,
+    "title": "盗梦空间",
+    "originalTitle": "Inception",
+    "year": 2010,
+    "director": "克里斯托弗·诺兰",
+    "genre": [
+      "科幻",
+      "动作",
+      "悬疑"
+    ],
+    "rating": 9.3,
+    "duration": "148分钟",
+    "description": "一个专门在梦境中窃取秘密的专家，接受了一项不可能完成的任务。",
+    "poster": "https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg"
+  },
+  {
+    "id": 9,
+    "title": "楚门的世界",
+    "originalTitle": "The Truman Show",
+    "year": 1998,
+    "director": "彼得·威尔",
+    "genre": [
+      "剧情",
+      "科幻"
+    ],
+    "rating": 9.3,
+    "duration": "103分钟",
+    "description": "一个男人发现自己的整个生活都是一场真人秀节目。",
+    "poster": "https://image.tmdb.org/t/p/w500/vuza0WqY239yBXOadKlGwJsZJFE.jpg"
+  },
+  {
+    "id": 10,
+    "title": "忠犬八公的故事",
+    "originalTitle": "Hachi: A Dog's Tale",
+    "year": 2009,
+    "director": "拉斯·霍尔斯道姆",
+    "genre": [
+      "剧情",
+      "家庭"
+    ],
+    "rating": 9.4,
+    "duration": "93分钟",
+    "description": "一只忠诚的秋田犬每天在车站等待已故主人归来的真实故事。",
+    "poster": "https://image.tmdb.org/t/p/w500/64EHg5vONKBpMKQB4VVgFAPYnfl.jpg"
+  }
+]

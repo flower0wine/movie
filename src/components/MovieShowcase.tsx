@@ -1,13 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import moviesData from "@/data/movies.json";
 import HeroCarousel from "@/components/HeroCarousel";
 import type { Movie } from "@/types/movie";
 
-const movies: Movie[] = moviesData;
-const featuredMovies = movies.filter((m) => m.rating >= 9.5);
+interface MoviesResponse {
+  movies: Movie[];
+  featuredMovies: Movie[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  query: string;
+}
+
+const LOAD_AHEAD_MARGIN = "700px";
+const VIRTUAL_OVERSCAN_ROWS = 2;
+const GRID_GAP = 16;
 
 function StarIcon({ className }: { className?: string }) {
   return (
@@ -64,7 +74,7 @@ function FilmIcon({ className }: { className?: string }) {
 
 function MoviePoster({ movie }: { movie: Movie }) {
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-dark-border bg-dark-card transition-all duration-300 hover:border-dark-border-hover hover:shadow-xl hover:shadow-black/50">
+    <div className="group relative overflow-hidden rounded-lg border border-dark-border transition-all duration-300 hover:border-dark-border-hover hover:shadow-xl hover:shadow-black/50">
       <div className="relative aspect-[2/3] w-full overflow-hidden">
         <Image
           src={movie.poster}
@@ -74,7 +84,17 @@ function MoviePoster({ movie }: { movie: Movie }) {
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           unoptimized
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-3 px-3 opacity-100 group-hover:opacity-0 transition-opacity duration-200">
+          <h3 className="text-sm font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] truncate">
+            {movie.title}
+          </h3>
+          <p className="text-xs text-white/50 mt-0.5">
+            {movie.year}
+          </p>
+        </div>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
           <div className="flex items-center gap-1.5 mb-1.5">
@@ -102,35 +122,228 @@ function MoviePoster({ movie }: { movie: Movie }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="px-3 py-2.5">
-        <h3 className="text-sm font-medium text-dark-text truncate">
-          {movie.title}
-        </h3>
-        <p className="text-xs text-dark-text-muted mt-0.5">
-          {movie.originalTitle} · {movie.year}
-        </p>
+function getGridColumns() {
+  if (typeof window === "undefined") return 5;
+
+  if (window.innerWidth >= 1024) return 5;
+  if (window.innerWidth >= 768) return 4;
+  if (window.innerWidth >= 640) return 3;
+  return 2;
+}
+
+function VirtualMovieGrid({
+  movies,
+  isLoading,
+}: {
+  movies: Movie[];
+  isLoading: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(900);
+  const [layout, setLayout] = useState({
+    columns: getGridColumns(),
+    rowHeight: 360,
+    top: 0,
+  });
+
+  useEffect(() => {
+    let frame = 0;
+
+    const updateScroll = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        setScrollTop(window.scrollY);
+        setViewportHeight(window.innerHeight);
+      });
+    };
+
+    updateScroll();
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    window.addEventListener("resize", updateScroll);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateScroll);
+      window.removeEventListener("resize", updateScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateLayout = () => {
+      const columns = getGridColumns();
+      const width = container.clientWidth;
+      const cardWidth = (width - GRID_GAP * (columns - 1)) / columns;
+      const rowHeight = cardWidth * 1.5 + GRID_GAP;
+      const top = container.getBoundingClientRect().top + window.scrollY;
+
+      setLayout({ columns, rowHeight, top });
+    };
+
+    const resizeObserver = new ResizeObserver(updateLayout);
+    resizeObserver.observe(container);
+    window.addEventListener("resize", updateLayout);
+    window.requestAnimationFrame(updateLayout);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, [movies.length]);
+
+  const virtualWindow = useMemo(() => {
+    const totalRows = Math.ceil(movies.length / layout.columns);
+    const firstVisibleRow = Math.max(
+      Math.floor((scrollTop - layout.top) / layout.rowHeight) -
+        VIRTUAL_OVERSCAN_ROWS,
+      0
+    );
+    const lastVisibleRow = Math.min(
+      Math.ceil((scrollTop + viewportHeight - layout.top) / layout.rowHeight) +
+        VIRTUAL_OVERSCAN_ROWS,
+      totalRows
+    );
+    const startIndex = firstVisibleRow * layout.columns;
+    const endIndex = Math.min(lastVisibleRow * layout.columns, movies.length);
+
+    return {
+      items: movies.slice(startIndex, endIndex),
+      startIndex,
+      topPadding: firstVisibleRow * layout.rowHeight,
+      bottomPadding: Math.max((totalRows - lastVisibleRow) * layout.rowHeight, 0),
+    };
+  }, [layout, movies, scrollTop, viewportHeight]);
+
+  return (
+    <div ref={containerRef}>
+      <div style={{ height: virtualWindow.topPadding }} />
+      <div
+        className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ${
+          isLoading ? "opacity-60" : ""
+        }`}
+      >
+        {virtualWindow.items.map((movie) => (
+          <MoviePoster key={movie.id} movie={movie} />
+        ))}
       </div>
+      <div style={{ height: virtualWindow.bottomPadding }} />
     </div>
   );
 }
 
 export default function MovieShowcase() {
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [featuredMovies, setFeaturedMovies] = useState<Movie[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isLoadingRef = useRef(isLoading);
+  const hasMore = page < totalPages;
 
-  const filteredMovies = useMemo(() => {
-    if (!search.trim()) return movies;
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
-    const query = search.toLowerCase().trim();
-    return movies.filter(
-      (movie) =>
-        movie.title.toLowerCase().includes(query) ||
-        movie.originalTitle.toLowerCase().includes(query) ||
-        movie.director.toLowerCase().includes(query) ||
-        movie.genre.some((g) => g.toLowerCase().includes(query)) ||
-        movie.year.toString().includes(query)
+  const fetchMovies = useCallback(
+    async (signal: AbortSignal) => {
+      const trimmed = search.trim();
+      const isSearch = trimmed.length > 0;
+      const searchParams = new URLSearchParams({ page: String(page) });
+
+      if (isSearch) {
+        searchParams.set("q", trimmed);
+      }
+
+      try {
+        setIsLoading(true);
+        setError("");
+
+        const endpoint = isSearch ? "/api/movies/search" : "/api/movies";
+        const response = await fetch(`${endpoint}?${searchParams.toString()}`, {
+          signal,
+        });
+
+        if (!response.ok) {
+          throw new Error("获取电影数据失败");
+        }
+
+        const data = (await response.json()) as MoviesResponse;
+        setMovies((currentMovies) => {
+          if (data.page === 1) return data.movies;
+
+          const existingIds = new Set(currentMovies.map((movie) => movie.id));
+          const newMovies = data.movies.filter(
+            (movie) => !existingIds.has(movie.id)
+          );
+          return [...currentMovies, ...newMovies];
+        });
+        setFeaturedMovies(data.featuredMovies);
+        setTotal(data.total);
+        setTotalPages(data.totalPages);
+        setPageSize(data.pageSize);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setError(err instanceof Error ? err.message : "获取电影数据失败");
+      } finally {
+        if (!signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [page, search]
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const trimmed = search.trim();
+
+    if (!trimmed) {
+      fetchMovies(controller.signal);
+      return () => controller.abort();
+    }
+
+    const timer = window.setTimeout(() => {
+      fetchMovies(controller.signal);
+    }, 300);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [fetchMovies, search]);
+
+  useEffect(() => {
+    const marker = loadMoreRef.current;
+    if (!marker) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || isLoadingRef.current) return;
+        setPage((currentPage) =>
+          currentPage < totalPages ? currentPage + 1 : currentPage
+        );
+      },
+      { root: null, rootMargin: `0px 0px ${LOAD_AHEAD_MARGIN} 0px` }
     );
-  }, [search]);
+
+    observer.observe(marker);
+
+    return () => observer.disconnect();
+  }, [movies.length, totalPages]);
+
+  const loadedCount = movies.length;
 
   return (
     <div className="flex flex-col flex-1 min-h-screen">
@@ -147,7 +360,14 @@ export default function MovieShowcase() {
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+                setMovies([]);
+                setTotal(0);
+                setTotalPages(1);
+                setError("");
+              }}
               placeholder="搜索电影名、导演、类型..."
               className="w-full pl-9 pr-4 py-2 text-sm bg-dark-surface border border-dark-border rounded-lg text-dark-text placeholder:text-dark-text-muted focus:outline-none focus:border-dark-border-hover transition-colors"
             />
@@ -160,7 +380,25 @@ export default function MovieShowcase() {
       )}
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
-        {filteredMovies.length === 0 ? (
+        {error ? (
+          <div className="flex flex-col items-center justify-center py-24 text-dark-text-muted">
+            <SearchIcon className="w-12 h-12 mb-4 opacity-30" />
+            <p className="text-lg text-dark-text">数据加载失败</p>
+            <p className="text-sm mt-1">{error}</p>
+          </div>
+        ) : isLoading && movies.length === 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {Array.from({ length: pageSize }).map((_, index) => (
+              <div key={index} className="relative aspect-[2/3] rounded-lg border border-dark-border bg-dark-surface overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent bg-[length:200%_100%] animate-shimmer" />
+                <div className="absolute bottom-0 inset-x-0 h-12 bg-dark-card">
+                  <div className="h-3 w-3/4 rounded bg-dark-border mt-3 mx-3" />
+                  <div className="h-2 w-1/3 rounded bg-dark-border mt-2 mx-3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : movies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-dark-text-muted">
             <SearchIcon className="w-12 h-12 mb-4 opacity-30" />
             <p className="text-lg">未找到匹配的电影</p>
@@ -170,14 +408,32 @@ export default function MovieShowcase() {
           <>
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-dark-text-muted">
-                共 <span className="text-dark-text font-medium">{filteredMovies.length}</span> 部电影
+                共 <span className="text-dark-text font-medium">{total}</span> 部电影
+                <span className="ml-2">
+                  已加载 <span className="text-dark-text font-medium">{loadedCount}</span> 部
+                </span>
               </p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {filteredMovies.map((movie) => (
-                <MoviePoster key={movie.id} movie={movie} />
-              ))}
-            </div>
+            <VirtualMovieGrid movies={movies} isLoading={isLoading} />
+            <div ref={loadMoreRef} className="h-12" aria-hidden="true" />
+            {isLoading && movies.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+                {Array.from({ length: pageSize }).map((_, index) => (
+                  <div key={index} className="relative aspect-[2/3] rounded-lg border border-dark-border bg-dark-surface overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent bg-[length:200%_100%] animate-shimmer" />
+                    <div className="absolute bottom-0 inset-x-0 h-12 bg-dark-card">
+                      <div className="h-3 w-3/4 rounded bg-dark-border mt-3 mx-3" />
+                      <div className="h-2 w-1/3 rounded bg-dark-border mt-2 mx-3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!hasMore && movies.length > 0 && (
+              <div className="py-6 text-center text-sm text-dark-text-muted">
+                已加载全部电影
+              </div>
+            )}
           </>
         )}
       </main>

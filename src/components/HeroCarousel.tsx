@@ -109,15 +109,14 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
             alt={movie.title}
             fill
             priority
-            className="object-cover scale-110 blur-sm brightness-[0.3]"
+            className="object-cover brightness-[0.85]"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-dark-bg via-dark-bg/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-dark-bg/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/20 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-6 sm:px-10 flex items-center">
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-6 sm:px-10 flex items-end pb-16">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -125,55 +124,29 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
             initial="enter"
             animate="center"
             exit="exit"
-            className="flex gap-8 items-center w-full"
+            className="w-full max-w-2xl"
           >
-            <div className="hidden sm:block shrink-0 w-44 md:w-52">
-              <div className="relative aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-black/60">
-                <Image
-                  src={movie.poster}
-                  alt={movie.title}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-glow/20 backdrop-blur-sm">
+                <StarIcon className="w-3.5 h-3.5 text-amber-glow" />
+                <span className="text-sm font-bold text-amber-glow">{movie.rating}</span>
+              </span>
+              <span className="text-sm text-white/60">{movie.year}</span>
             </div>
 
-            <div className="flex-1 min-w-0 py-8">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-glow/15 border border-amber-glow/30">
-                  <StarIcon className="w-4 h-4 text-amber-glow" />
-                  <span className="text-sm font-bold text-amber-glow">{movie.rating}</span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+              {movie.title}
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+              {movie.genre.map((g) => (
+                <span
+                  key={g}
+                  className="px-3 py-1 text-xs rounded-full bg-white/15 text-white/80 backdrop-blur-sm"
+                >
+                  {g}
                 </span>
-                <span className="text-sm text-white/50">{movie.duration}</span>
-                <span className="text-sm text-white/50">{movie.year}</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-2 leading-tight">
-                {movie.title}
-              </h2>
-              <p className="text-base sm:text-lg text-white/50 mb-5 font-light">
-                {movie.originalTitle}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-5">
-                {movie.genre.map((g) => (
-                  <span
-                    key={g}
-                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white/70 border border-white/10"
-                  >
-                    {g}
-                  </span>
-                ))}
-              </div>
-
-              <p className="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl line-clamp-3 mb-6">
-                {movie.description}
-              </p>
-
-              <div className="flex items-center gap-2 text-sm text-white/40">
-                <span className="text-white/60">{movie.director}</span>
-              </div>
+              ))}
             </div>
           </motion.div>
         </AnimatePresence>
